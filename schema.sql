@@ -1,7 +1,7 @@
 -- 1) غيّر الإيميل ده لإيميلك (اللي هتدخل بيه كمالك) قبل ما تشغّل الملف
 create or replace function public.is_owner() returns boolean
 language sql stable as $$
-  select coalesce(auth.jwt()->>'email','') = lower('PUT_YOUR_EMAIL_HERE')
+  select coalesce(auth.jwt()->>'email','') = lower('mov09597@gmail.com')
 $$;
 
 create table if not exists profile(
