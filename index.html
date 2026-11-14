@@ -198,9 +198,9 @@ function render(){
  $("editBtn").hidden=!owner;$("lock").hidden=owner;
 }
 document.addEventListener("input",e=>{const d=e.target.dataset;if(d&&d.c)drafts[d.c]=e.target.value});
-document.addEventListener("click",async e=>{const t=e.target,d=t.dataset||{};
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-lk],[data-sc],[data-dc],[data-dv],[data-dl],[data-pick]")||e.target,d=t.dataset||{};
  if(d.pick)$(d.pick).click();
- if(d.lk){await sb.rpc("toggle_like",{p_video:d.lk,p_visitor:vis});load()}
+ if(d.lk){const r=await sb.rpc("toggle_like",{p_video:d.lk,p_visitor:vis});if(r.error)toast("فشل اللايك: "+r.error.message);load()}
  if(d.sc){let nm=localStorage.getItem("nm"),bd=(drafts[d.sc]||"").trim();if(!bd){alert("اكتب التعليق الأول");return}if(!nm){nm=(prompt("اكتب اسمك اللي هيظهر مع تعليقك")||"").trim().slice(0,40);if(!nm)return;localStorage.setItem("nm",nm)}
   const r=await sb.from("comments").insert({video_id:d.sc,name:nm,body:bd});if(r.error){alert("مقدرتش أبعت التعليق");return}drafts[d.sc]="";load()}
  if(d.dc&&confirm("تمسح التعليق؟")){await sb.from("comments").delete().eq("id",d.dc);load()}
@@ -254,6 +254,9 @@ $("fV").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)ret
 $("lAdd").onclick=async()=>{const t=$("lT").value.trim(),u=$("lU").value.trim();if(!t||!/^https?:\/\//i.test(u)){say("اكتب اسم ولينك يبدأ بـ https://");return}
  const r=await sb.from("links").insert({title:t,url:u,position:L.length});if(r.error){say("فشل: "+r.error.message);return}$("lT").value=$("lU").value="";say("اتضاف ✓");load()};
 document.addEventListener("click",async e=>{const id=e.target.dataset&&e.target.dataset.et;if(!id)return;const v=V.find(x=>x.id===id);const t=prompt("العنوان الجديد",v&&v.title||"");if(t===null)return;const r=await sb.from("videos").update({title:t.trim()}).eq("id",id);toast(r.error?"فشل: "+r.error.message:"اتعدل ✓");load()});
+document.addEventListener("play",e=>{if(e.target.tagName!=="VIDEO")return;document.querySelectorAll("#vids video").forEach(v=>{if(v!==e.target)v.pause()})},true);
+$("nm").onclick=()=>{if(!owner)return;const v=prompt("الاسم الجديد",P.name||"");if(v===null)return;saveP({name:v.trim()})};
+$("bio").onclick=()=>{if(!owner)return;const v=prompt("النبذة الجديدة",P.bio||"");if(v===null)return;saveP({bio:v})};
 checkOwner();load();
 </script>
 </body>
