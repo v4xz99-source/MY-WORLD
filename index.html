@@ -115,6 +115,13 @@ body{overflow-x:hidden}
 .hand-r{animation:reachR 4s ease-in-out .6s infinite;filter:drop-shadow(0 10px 8px #000c)}
 @keyframes reachL{50%{transform:translate(5px,-4px) scale(1.035)}}
 @keyframes reachR{50%{transform:translate(-5px,4px) scale(1.035)}}
+.car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;background:#000;scrollbar-width:none}
+.car::-webkit-scrollbar{display:none}
+.car img{flex:none;width:100%;max-height:560px;object-fit:contain;scroll-snap-align:center}
+.dots{display:flex;gap:6px;justify-content:center;padding:10px 0 0}
+.dots i{width:7px;height:7px;border-radius:50%;background:#444;transition:.2s}
+.dots i.on{background:#fff;transform:scale(1.3)}
+.cap{margin:0 0 8px;white-space:pre-wrap}
 </style>
 </head>
 <body>
@@ -143,6 +150,11 @@ body{overflow-x:hidden}
   <label>فيديو جديد</label>
   <input id="vT" placeholder="عنوان الفيديو">
   <div class="row" style="margin-top:8px"><button data-pick="fV">🎬 اختار فيديو من الموبيل</button></div>
+  <label>منشور جديد (صور كتير في منشور واحد)</label>
+  <textarea id="pC" rows="2" placeholder="وصف المنشور (اختياري)"></textarea>
+  <div class="row" style="margin-top:8px"><button data-pick="fP">🖼 اختار الصور</button><button id="pGo" class="lk sm">نشر المنشور</button></div>
+  <input type="file" id="fP" accept="image/*" multiple hidden>
+  <div class="row" id="pPrev" style="margin-top:8px"></div>
   <label>لينك جديد (أي برنامج أو موقع)</label>
   <div class="row"><input id="lT" placeholder="الاسم (Instagram, Telegram…)" style="flex:1;min-width:120px"><input id="lU" placeholder="https://…" style="flex:2;min-width:160px;direction:ltr"><button id="lAdd">إضافة</button></div>
   <p class="note" id="st"></p>
@@ -155,6 +167,8 @@ body{overflow-x:hidden}
   <div class="row" style="margin-top:10px"><button id="lGo">دخول</button><span class="note" id="lSt"></span></div>
  </div>
 
+ <h2 id="hP">المنشورات</h2>
+ <div id="posts"></div>
  <h2 id="hV">الفيديوهات</h2>
  <div id="vids"></div>
  <h2 id="hL">لينكاتي</h2>
@@ -175,7 +189,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safe=u=>/^https?:\/\//i.test(u||"")?u:"#";
 const vis=localStorage.getItem("vid")||(localStorage.setItem("vid",crypto.randomUUID()),localStorage.getItem("vid"));
-let P={},V=[],L=[],K=[],C=[],owner=false,drafts={};
+let P={},V=[],L=[],K=[],C=[],PS=[],PK=[],PC=[],PE=false,owner=false,drafts={};
 const say=t=>{$("st").textContent=t;toast(t)};
 function toast(m){let t=$("toast");if(!t){t=document.createElement("div");t.id="toast";document.body.append(t)}t.textContent=m;t.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.opacity=0,3800)}
 const sv=(d,x,c)=>`<svg viewBox="0 0 200 200" style="filter:drop-shadow(0 0 7px ${c||"#0000"})"><defs>${d}</defs>${x}</svg>`;
@@ -205,13 +219,13 @@ crescent:()=>sv(GR("a","#ffffff","#8a8a99","#d9d9e4"),'<circle cx="100" cy="100"
 };
 
 async function load(){
- const [p,v,l,k,c]=await Promise.all([
+ const [p,v,l,k,c,ps,pk,pc]=await Promise.all([
   sb.from("profile").select().eq("id",1).maybeSingle(),
   sb.from("videos").select().order("created_at",{ascending:false}),
   sb.from("links").select().order("position"),
   sb.from("likes").select("video_id,visitor_id"),
-  sb.from("comments").select().order("created_at")]);
- P=p.data||{};V=v.data||[];L=l.data||[];K=k.data||[];C=c.data||[];render();
+  sb.from("comments").select().order("created_at"),sb.from("posts").select().order("created_at",{ascending:false}),sb.from("post_likes").select("post_id,visitor_id"),sb.from("post_comments").select().order("created_at")]);
+ P=p.data||{};V=v.data||[];L=l.data||[];K=k.data||[];C=c.data||[];PE=!!ps.error;PS=ps.data||[];PK=pk.data||[];PC=pc.data||[];render();
 }
 function render(){
  $("nm").textContent=P.name||"MOHAMED AMR";$("bio").textContent=P.bio??"THIS IS MY WORLD.";
@@ -227,6 +241,12 @@ function render(){
   <div class="row"><button data-lk="${v.id}" class="lk ${mine?"liked":""}"><span class="h">${mine?"♥":"♡"}</span> ${lk.length}</button>${owner?`<button class="x" data-et="${v.id}">✎ العنوان</button><button class="x" data-dv="${v.id}">حذف الفيديو</button>`:""}</div>
   ${cs.map(c=>`<div class="cm"><b>${esc(c.name)}</b> <small>${new Date(c.created_at).toLocaleDateString("ar-EG")}</small><br>${esc(c.body)}${owner?` <button class="x" data-dc="${c.id}">✕</button>`:""}</div>`).join("")}
   <div class="row" style="margin-top:10px"><input data-c="${v.id}" placeholder="اكتب تعليق…" maxlength="500" value="${esc(drafts[v.id]||"")}" style="flex:1;min-width:140px"><button class="lk sm" data-sc="${v.id}">إرسال</button></div></div></div>`}).join(""):'<p class="note">مفيش فيديوهات لسه.</p>';
+ $("posts").innerHTML=PS.length?PS.map(x=>{
+  const lk=PK.filter(k=>k.post_id===x.id),mine=lk.some(k=>k.visitor_id===vis),cs=PC.filter(c=>c.post_id===x.id),im=x.images||[];
+  return `<div class="card"><div class="car" data-car="${x.id}">${im.map(u=>`<img src="${esc(safe(u))}" alt="" loading="lazy">`).join("")}</div>${im.length>1?`<div class="dots" data-dots="${x.id}">${im.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>`:""}<div class="cb">${x.caption?`<p class="cap">${esc(x.caption)}</p>`:""}
+  <div class="row"><button data-plk="${x.id}" class="lk ${mine?"liked":""}"><span class="h">${mine?"♥":"♡"}</span> ${lk.length}</button>${owner?`<button class="x" data-ep="${x.id}">✎ الوصف</button><button class="x" data-dp="${x.id}">حذف المنشور</button>`:""}</div>
+  ${cs.map(c=>`<div class="cm"><b>${esc(c.name)}</b> <small>${new Date(c.created_at).toLocaleDateString("ar-EG")}</small><br>${esc(c.body)}${owner?` <button class="x" data-pdc="${c.id}">✕</button>`:""}</div>`).join("")}
+  <div class="row" style="margin-top:10px"><input data-c="p${x.id}" placeholder="اكتب تعليق…" maxlength="500" value="${esc(drafts["p"+x.id]||"")}" style="flex:1;min-width:140px"><button class="lk sm" data-psc="${x.id}">إرسال</button></div></div></div>`}).join(""):(PE&&owner?'<p class="note">قسم المنشورات محتاج تشغيل سطر SQL في Supabase أولًا.</p>':'<p class="note">مفيش منشورات لسه.</p>');
  $("editBtn").hidden=!owner;$("lock").hidden=owner;
 }
 document.addEventListener("input",e=>{const d=e.target.dataset;if(d&&d.c)drafts[d.c]=e.target.value});
@@ -372,6 +392,24 @@ function frameLoop(ts){
   g.fillStyle=gr;g.beginPath();g.arc(p.x,p.y,r,0,7);g.fill()}
 }
 requestAnimationFrame(frameLoop);
+
+let pFiles=[];
+$("fP").onchange=e=>{pFiles=pFiles.concat([...e.target.files]).slice(0,10);e.target.value="";$("pPrev").innerHTML=pFiles.map(f=>'<img src="'+URL.createObjectURL(f)+'" style="width:56px;height:56px;object-fit:cover;border-radius:8px">').join("");say(pFiles.length+" صورة جاهزة (الحد 10)")};
+$("pGo").onclick=async()=>{if(!pFiles.length){say("اختار صور الأول");return}
+ const urls=[];
+ try{for(let i=0;i<pFiles.length;i++){say("بيرفع "+(i+1)+"/"+pFiles.length+"…");const f=pFiles[i],gif=f.type==="image/gif",b=gif?f:await shrink(f,1600,.85);urls.push(await upload(b,"posts",gif?"image/gif":"image/jpeg"))}
+  const r=await sb.from("posts").insert({caption:$("pC").value.trim(),images:urls});if(r.error)throw r.error;
+  pFiles=[];$("pPrev").innerHTML="";$("pC").value="";say("المنشور اتنشر ✓");load()}catch(x){say("فشل: "+(x.message||x))}};
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-plk],[data-psc],[data-pdc],[data-dp],[data-ep]");if(!t)return;const d=t.dataset;
+ if(d.plk){const r=await sb.rpc("toggle_post_like",{p_post:d.plk,p_visitor:vis});if(r.error)toast("فشل اللايك: "+r.error.message);load()}
+ if(d.psc){let nm=localStorage.getItem("nm");const bd=(drafts["p"+d.psc]||"").trim();if(!bd){alert("اكتب التعليق الأول");return}
+  if(!nm){nm=(prompt("اكتب اسمك اللي هيظهر مع تعليقك")||"").trim().slice(0,40);if(!nm)return;localStorage.setItem("nm",nm)}
+  const r=await sb.from("post_comments").insert({post_id:d.psc,name:nm,body:bd});if(r.error){alert("مقدرتش أبعت التعليق");return}drafts["p"+d.psc]="";load()}
+ if(d.pdc&&confirm("تمسح التعليق؟")){await sb.from("post_comments").delete().eq("id",d.pdc);load()}
+ if(d.dp&&confirm("تمسح المنشور؟")){await sb.from("posts").delete().eq("id",d.dp);load()}
+ if(d.ep){const x=PS.find(q=>q.id===d.ep),v=prompt("الوصف الجديد",x&&x.caption||"");if(v===null)return;const r=await sb.from("posts").update({caption:v.trim()}).eq("id",d.ep);toast(r.error?"فشل: "+r.error.message:"اتعدل ✓");load()}
+});
+document.addEventListener("scroll",e=>{const c=e.target;if(!c||!c.dataset||!c.dataset.car)return;const i=Math.round(Math.abs(c.scrollLeft)/c.clientWidth),d=document.querySelector('[data-dots="'+c.dataset.car+'"]');if(d)[...d.children].forEach((x,j)=>x.classList.toggle("on",j===i))},true);
 checkOwner();load();
 </script>
 </body>
