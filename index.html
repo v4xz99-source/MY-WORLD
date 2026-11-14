@@ -122,6 +122,10 @@ body{overflow-x:hidden}
 .dots i{width:7px;height:7px;border-radius:50%;background:#444;transition:.2s}
 .dots i.on{background:#fff;transform:scale(1.3)}
 .cap{margin:0 0 8px;white-space:pre-wrap}
+.tabs{display:flex;gap:10px;margin:36px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--ln)}
+.tab{border:0;border-radius:14px;padding:10px 22px;font-weight:700;color:var(--mu);background:linear-gradient(180deg,#26262d,#15151a);box-shadow:0 5px 0 #08080a,0 10px 16px #0008,inset 0 1px 0 #ffffff25;transition:transform .12s,box-shadow .12s,color .2s}
+.tab:active{transform:translateY(4px);box-shadow:0 1px 0 #08080a,0 3px 8px #0008}
+.tab.on{color:#111;background:linear-gradient(180deg,#fff,#c9c9d2);box-shadow:0 5px 0 #6d6d78,0 10px 20px #0009,inset 0 1px 0 #fff}
 </style>
 </head>
 <body>
@@ -167,10 +171,9 @@ body{overflow-x:hidden}
   <div class="row" style="margin-top:10px"><button id="lGo">دخول</button><span class="note" id="lSt"></span></div>
  </div>
 
- <h2 id="hP">المنشورات</h2>
- <div id="posts"></div>
- <h2 id="hV">الفيديوهات</h2>
+ <div class="tabs"><button class="tab on" data-tab="v" id="hV">الفيديوهات</button><button class="tab" data-tab="p" id="hP">Posts</button></div>
  <div id="vids"></div>
+ <div id="posts" hidden></div>
  <h2 id="hL">لينكاتي</h2>
  <div class="links" id="links"></div>
  <footer><span id="ft">MOHAMED AMR — MY WORLD, MY STORY.</span><br><button id="lock">دخول المالك</button></footer>
@@ -410,6 +413,9 @@ document.addEventListener("click",async e=>{const t=e.target.closest("[data-plk]
  if(d.ep){const x=PS.find(q=>q.id===d.ep),v=prompt("الوصف الجديد",x&&x.caption||"");if(v===null)return;const r=await sb.from("posts").update({caption:v.trim()}).eq("id",d.ep);toast(r.error?"فشل: "+r.error.message:"اتعدل ✓");load()}
 });
 document.addEventListener("scroll",e=>{const c=e.target;if(!c||!c.dataset||!c.dataset.car)return;const i=Math.round(Math.abs(c.scrollLeft)/c.clientWidth),d=document.querySelector('[data-dots="'+c.dataset.car+'"]');if(d)[...d.children].forEach((x,j)=>x.classList.toggle("on",j===i))},true);
+document.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;const t=b.dataset.tab;
+ $("vids").hidden=t!=="v";$("posts").hidden=t!=="p";
+ document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b))});
 checkOwner();load();
 </script>
 </body>
