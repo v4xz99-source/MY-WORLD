@@ -126,6 +126,9 @@ body{overflow-x:hidden}
 .tab{border:0;border-radius:14px;padding:10px 22px;font-weight:700;color:var(--mu);background:linear-gradient(180deg,#26262d,#15151a);box-shadow:0 5px 0 #08080a,0 10px 16px #0008,inset 0 1px 0 #ffffff25;transition:transform .12s,box-shadow .12s,color .2s}
 .tab:active{transform:translateY(4px);box-shadow:0 1px 0 #08080a,0 3px 8px #0008}
 .tab.on{color:#111;background:linear-gradient(180deg,#fff,#c9c9d2);box-shadow:0 5px 0 #6d6d78,0 10px 20px #0009,inset 0 1px 0 #fff}
+.links[hidden]{display:none}
+.lt{display:flex;align-items:center;gap:8px}
+.ico{width:20px;height:20px;border-radius:6px;flex:none}
 </style>
 </head>
 <body>
@@ -171,11 +174,10 @@ body{overflow-x:hidden}
   <div class="row" style="margin-top:10px"><button id="lGo">دخول</button><span class="note" id="lSt"></span></div>
  </div>
 
- <div class="tabs"><button class="tab on" data-tab="v" id="hV">الفيديوهات</button><button class="tab" data-tab="p" id="hP">Posts</button></div>
+ <div class="tabs"><button class="tab on" data-tab="v" id="hV">الفيديوهات</button><button class="tab" data-tab="p" id="hP">Posts</button><button class="tab" data-tab="l" id="hL">لينكاتي</button></div>
  <div id="vids"></div>
  <div id="posts" hidden></div>
- <h2 id="hL">لينكاتي</h2>
- <div class="links" id="links"></div>
+ <div class="links" id="links" hidden></div>
  <footer><span id="ft">MOHAMED AMR — MY WORLD, MY STORY.</span><br><button id="lock">دخول المالك</button></footer>
 <div id="crop" hidden><div class="cbox"><p class="note" style="margin:0 0 8px;text-align:center">اسحب الصورة لتظبط مكانها، وكبّر بالشريط</p><div id="cv"><img id="cimg" alt=""></div><input type="range" id="cz" min="1" max="4" step=".01" value="1" style="margin:12px 0"><div class="row"><button id="cok" class="lk sm">تأكيد</button><button id="cno">إلغاء</button></div></div></div>
 </div>
@@ -230,6 +232,7 @@ async function load(){
   sb.from("comments").select().order("created_at"),sb.from("posts").select().order("created_at",{ascending:false}),sb.from("post_likes").select("post_id,visitor_id"),sb.from("post_comments").select().order("created_at")]);
  P=p.data||{};V=v.data||[];L=l.data||[];K=k.data||[];C=c.data||[];PE=!!ps.error;PS=ps.data||[];PK=pk.data||[];PC=pc.data||[];render();
 }
+const ico=u=>{let h="";try{h=new URL(u).hostname}catch(e){}return h?'<img class="ico" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(h)+'&sz=64" alt="" onerror="this.remove()">':""};
 function render(){
  $("nm").textContent=P.name||"MOHAMED AMR";$("bio").textContent=P.bio??"THIS IS MY WORLD.";
  const fr=P.frame||"ring";applyFrame(fr);
@@ -237,7 +240,7 @@ function render(){
  $("im").style.backgroundImage=P.avatar_url?`url("${encodeURI(safe(P.avatar_url))}")`:"";
  const b=$("banner"),u=P.banner_url?safe(P.banner_url):"";
  b.innerHTML=!u?"":P.banner_type==="video"?`<video src="${esc(u)}" autoplay muted loop playsinline></video>`:`<img src="${esc(u)}" alt="">`;
- $("links").innerHTML=L.length?L.map(l=>`<a href="${esc(safe(l.url))}" target="_blank" rel="noopener noreferrer nofollow"><b>${esc(l.title)}</b><small>${esc(l.url)}</small>${owner?`<button class="x" data-dl="${l.id}">✕</button>`:""}</a>`).join(""):'<p class="note">مفيش لينكات لسه.</p>';
+ $("links").innerHTML=L.length?L.map(l=>`<a href="${esc(safe(l.url))}" target="_blank" rel="noopener noreferrer nofollow"><span class="lt">${ico(l.url)}<b>${esc(l.title)}</b></span><small>${esc(l.url)}</small>${owner?`<button class="x" data-dl="${l.id}">✕</button>`:""}</a>`).join(""):'<p class="note">مفيش لينكات لسه.</p>';
  $("vids").innerHTML=V.length?V.map(v=>{
   const lk=K.filter(x=>x.video_id===v.id),mine=lk.some(x=>x.visitor_id===vis),cs=C.filter(x=>x.video_id===v.id);
   return `<div class="card"><video src="${esc(safe(v.url))}" controls preload="metadata" playsinline></video><div class="cb"><h3>${esc(v.title)}</h3>
@@ -414,7 +417,7 @@ document.addEventListener("click",async e=>{const t=e.target.closest("[data-plk]
 });
 document.addEventListener("scroll",e=>{const c=e.target;if(!c||!c.dataset||!c.dataset.car)return;const i=Math.round(Math.abs(c.scrollLeft)/c.clientWidth),d=document.querySelector('[data-dots="'+c.dataset.car+'"]');if(d)[...d.children].forEach((x,j)=>x.classList.toggle("on",j===i))},true);
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;const t=b.dataset.tab;
- $("vids").hidden=t!=="v";$("posts").hidden=t!=="p";
+ $("vids").hidden=t!=="v";$("posts").hidden=t!=="p";$("links").hidden=t!=="l";
  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b))});
 checkOwner();load();
 </script>
