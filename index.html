@@ -29,6 +29,14 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.07;z-i
 .f-double{background:var(--bg);box-shadow:0 0 0 3px var(--si),0 0 0 8px var(--bg),0 0 0 11px #777}
 .f-hex{border-radius:0;clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%);background:linear-gradient(135deg,#a855f7,#22d3ee)}
 .f-hex .im{border-radius:0;clip-path:inherit;border:0}
+.f-blue,.f-swirl,.f-crescent,.f-thorn{animation:spin 6s linear infinite}
+.f-blue .im,.f-swirl .im,.f-crescent .im,.f-thorn .im{animation:spin 6s linear infinite reverse}
+.f-blue{background:conic-gradient(#1e3cff,#8fb0ff,#4b1fa8,#1e3cff,#6a8dff,#1e3cff);box-shadow:0 0 18px #3b5bff,0 0 42px #3b5bff66}
+.f-swirl{background:conic-gradient(from 0deg,transparent 0 12%,#00e5ff 35%,#0077b6 60%,transparent 78%,#00e5ff 92%,transparent);box-shadow:0 0 22px #00e5ff55}
+.f-crescent{background:conic-gradient(from 200deg,transparent 0 28%,#fff 40%,#8a8a95 55%,#d9d9e0 70%,transparent 84%);filter:drop-shadow(0 0 6px #ffffff66)}
+.f-thorn{background:conic-gradient(#ff2bd6,#4a0066,#ff2bd6,#2a0040,#ff2bd6);box-shadow:0 0 20px #ff2bd699;outline:2px dashed #ff2bd6;outline-offset:5px}
+.f-crystal{position:relative;background:linear-gradient(#ff8a8a,#c1121f)}
+.f-crystal:before{content:"";position:absolute;left:-6%;right:-6%;top:-22%;height:32%;background:linear-gradient(#ffc2c2,#e63946);clip-path:polygon(0 100%,8% 30%,16% 80%,26% 10%,36% 70%,50% 0,62% 70%,74% 15%,84% 80%,92% 30%,100% 100%);filter:drop-shadow(0 0 6px #ff4d4d)}
 .f-none{background:transparent}
 .who{flex:1;min-width:200px;padding-bottom:6px}
 h1{margin:0;font:700 2.1rem "Cormorant Garamond",serif;letter-spacing:.06em}
@@ -67,7 +75,7 @@ footer button{background:#1d1d21;border:1px solid var(--ln);color:var(--tx);font
   <label>الاسم</label><input id="aN">
   <label>نبذة عنك</label><textarea id="aB" rows="2"></textarea>
   <label>شكل الإطار حوالين الصورة</label>
-  <select id="aF"><option value="ring">دايرة فضي</option><option value="neon">نيون</option><option value="gold">دهبي</option><option value="fire">نار متحرك</option><option value="double">إطار مزدوج</option><option value="hex">سداسي</option><option value="none">من غير إطار</option></select>
+  <select id="aF"><option value="ring">دايرة فضي</option><option value="neon">نيون</option><option value="gold">دهبي</option><option value="fire">نار متحرك</option><option value="double">إطار مزدوج</option><option value="hex">سداسي</option><option value="blue">نار زرقا</option><option value="swirl">دوامة سيان</option><option value="crescent">هلال فضي</option><option value="thorn">أشواك بنفسجي</option><option value="crystal">كريستال أحمر</option><option value="none">من غير إطار</option></select>
   <div class="row" style="margin-top:12px">
    <button data-pick="fAv">📷 صورة البروفيل</button>
    <button data-pick="fBn">🖼 بانر (صورة أو فيديو)</button>
