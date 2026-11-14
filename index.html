@@ -13,7 +13,7 @@
 body{margin:0;background:var(--bg);color:var(--tx);font-family:Cairo,system-ui,sans-serif;line-height:1.7;padding-bottom:env(safe-area-inset-bottom)}
 body:after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.07;z-index:50;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .wrap{max-width:880px;margin:0 auto;padding:0 16px 60px}
-.banner{height:260px;position:relative;overflow:hidden;background:linear-gradient(120deg,#0c0c0e,#2b2b34,#0a0a0c,#3b3b47);background-size:300% 300%;animation:bg 14s ease infinite}
+.banner{height:clamp(170px,40vw,300px);position:relative;overflow:hidden;background:linear-gradient(120deg,#0c0c0e,#2b2b34,#0a0a0c,#3b3b47);background-size:300% 300%;animation:bg 14s ease infinite}
 @keyframes bg{50%{background-position:100% 50%}}
 .banner img,.banner video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .banner:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,var(--bg))}
@@ -60,27 +60,57 @@ input,textarea,select{background:#0e0e10;color:var(--tx);border:1px solid var(--
 footer{text-align:center;color:var(--mu);margin-top:50px;font:500 .95rem "Cormorant Garamond",serif;letter-spacing:.1em}
 footer button{background:#1d1d21;border:1px solid var(--ln);color:var(--tx);font-size:.9rem;margin-top:10px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+
+.avw{position:relative;width:150px;height:150px;flex:none;transition:transform .35s}
+.avw:hover{transform:perspective(520px) rotateY(9deg) rotateX(-5deg)}
+.deco{position:absolute;inset:-22%;pointer-events:none;z-index:3}
+.deco svg{width:100%;height:100%;overflow:visible}
+.av .im{box-shadow:0 12px 26px #000c,inset 0 2px 6px #ffffff22}
+.f-ring{background:linear-gradient(135deg,#fff,#8e8e9a,#eeeef3,#666672);box-shadow:0 8px 18px #000b,inset 0 2px 3px #fffa}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:fl 1.3s ease-in-out infinite alternate}
+@keyframes fl{to{transform:scale(1.12,.78)}}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 8s linear infinite}
+.spin2{transform-box:fill-box;transform-origin:center;animation:spin 12s linear infinite reverse}
+.card{box-shadow:0 20px 44px #000b,inset 0 1px 0 #ffffff14}
+input,textarea{box-shadow:inset 0 3px 8px #000b}
+.lk{position:relative;border:0;border-radius:14px;padding:10px 18px;font-weight:700;color:#fff;background:linear-gradient(180deg,#42424e,#1b1b22);box-shadow:0 6px 0 #0a0a0d,0 12px 20px #000a,inset 0 1px 0 #ffffff40;transition:transform .12s,box-shadow .12s}
+.lk:hover{background:linear-gradient(180deg,#4c4c5a,#202028)}
+.lk:active{transform:translateY(5px);box-shadow:0 1px 0 #0a0a0d,0 3px 8px #000a,inset 0 1px 0 #ffffff40}
+.lk.sm{padding:9px 16px}
+.lk.liked{background:linear-gradient(180deg,#ff7b97,#d11a48);box-shadow:0 6px 0 #7a0d28,0 12px 24px #ff2d5f66,inset 0 1px 0 #ffffff77;color:#fff}
+.lk .h{display:inline-block;font-size:1.1em}
+.lk.liked .h{animation:pop .5s}
+@keyframes pop{40%{transform:scale(1.5) rotate(-10deg)}}
+.cm{background:linear-gradient(145deg,#222229,#131317);border:1px solid #2e2e36;border-radius:16px;padding:10px 14px;margin-top:12px;box-shadow:7px 8px 16px #000a,-3px -3px 10px #ffffff0a,inset 0 1px 0 #ffffff18;transform:perspective(700px) rotateX(3deg);transition:transform .25s}
+.cm:hover{transform:perspective(700px) rotateX(0) translateY(-3px)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom));background:#222;color:#fff;border:1px solid #555;border-radius:12px;padding:10px 16px;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90vw;font-size:.9rem}
+#crop{position:fixed;inset:0;background:#000d;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+#crop[hidden]{display:none}
+.cbox{background:#131315;border:1px solid var(--ln);border-radius:18px;padding:14px;width:min(94vw,420px)}
+#cv{position:relative;overflow:hidden;touch-action:none;background:#000;margin:auto;border-radius:12px;cursor:grab}
+#cv.c{border-radius:50%}
+#cimg{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;user-select:none;-webkit-user-drag:none}
 </style>
 </head>
 <body>
 <div class="banner" id="banner"></div>
 <div class="wrap">
  <div class="head">
-  <div class="av f-ring" id="av"><div class="im" id="im"></div></div>
+  <div class="avw"><div class="av f-ring" id="av"><div class="im" id="im"></div></div><div class="deco" id="deco"></div></div>
   <div class="who"><h1 id="nm">MOHAMED AMR</h1><p class="bio" id="bio">THIS IS MY WORLD.</p></div>
   <button id="editBtn" hidden>⚙ تعديل الصفحة</button>
  </div>
 
  <div id="adm" class="adm" hidden>
   <label>الاسم</label><input id="aN">
-  <label>نبذة عنك</label><textarea id="aB" rows="2"></textarea>
+  <label>نبذة عنك</label><textarea id="aB" rows="2"></textarea><label>عنوان قسم الفيديوهات</label><input id="tV" placeholder="الفيديوهات"><label>عنوان قسم اللينكات</label><input id="tL" placeholder="لينكاتي"><label>نص آخر الصفحة</label><input id="tF" placeholder="MOHAMED AMR — MY WORLD, MY STORY.">
   <label>شكل الإطار حوالين الصورة</label>
-  <select id="aF"><option value="ring">دايرة فضي</option><option value="neon">نيون</option><option value="gold">دهبي</option><option value="fire">نار متحرك</option><option value="double">إطار مزدوج</option><option value="hex">سداسي</option><option value="blue">نار زرقا</option><option value="swirl">دوامة سيان</option><option value="crescent">هلال فضي</option><option value="thorn">أشواك بنفسجي</option><option value="crystal">كريستال أحمر</option><option value="none">من غير إطار</option></select>
+  <select id="aF"><option value="ring">فضي</option><option value="gold">دهبي 3D</option><option value="crown">تاج ملكي</option><option value="blue">نار زرقا</option><option value="fire">نار برتقالي</option><option value="ice">جليد</option><option value="swirl">دوامة سيان</option><option value="crescent">هلال فضي</option><option value="thorn">أشواك بنفسجي</option><option value="crystal">كريستال أحمر</option><option value="none">من غير إطار</option></select>
   <div class="row" style="margin-top:12px">
    <button data-pick="fAv">📷 صورة البروفيل</button>
    <button data-pick="fBn">🖼 بانر (صورة أو فيديو)</button>
    <button id="clrBn">رجّع البانر المتحرك</button>
-   <button id="save">حفظ الاسم والنبذة</button>
+   <button id="save">حفظ الكل</button>
   </div>
   <input type="file" id="fAv" accept="image/*" hidden>
   <input type="file" id="fBn" accept="image/*,video/*" hidden>
@@ -100,11 +130,12 @@ footer button{background:#1d1d21;border:1px solid var(--ln);color:var(--tx);font
   <div class="row" style="margin-top:10px"><button id="lGo">دخول</button><span class="note" id="lSt"></span></div>
  </div>
 
- <h2>الفيديوهات</h2>
+ <h2 id="hV">الفيديوهات</h2>
  <div id="vids"></div>
- <h2>لينكاتي</h2>
+ <h2 id="hL">لينكاتي</h2>
  <div class="links" id="links"></div>
- <footer>MOHAMED AMR — MY WORLD, MY STORY.<br><button id="lock">دخول المالك</button></footer>
+ <footer><span id="ft">MOHAMED AMR — MY WORLD, MY STORY.</span><br><button id="lock">دخول المالك</button></footer>
+<div id="crop" hidden><div class="cbox"><p class="note" style="margin:0 0 8px;text-align:center">اسحب الصورة لتظبط مكانها، وكبّر بالشريط</p><div id="cv"><img id="cimg" alt=""></div><input type="range" id="cz" min="1" max="4" step=".01" value="1" style="margin:12px 0"><div class="row"><button id="cok" class="lk sm">تأكيد</button><button id="cno">إلغاء</button></div></div></div>
 </div>
 
 <script>
@@ -120,7 +151,26 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const safe=u=>/^https?:\/\//i.test(u||"")?u:"#";
 const vis=localStorage.getItem("vid")||(localStorage.setItem("vid",crypto.randomUUID()),localStorage.getItem("vid"));
 let P={},V=[],L=[],K=[],C=[],owner=false,drafts={};
-const say=t=>{$("st").textContent=t};
+const say=t=>{$("st").textContent=t;toast(t)};
+function toast(m){let t=$("toast");if(!t){t=document.createElement("div");t.id="toast";document.body.append(t)}t.textContent=m;t.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.opacity=0,3800)}
+const sv=(d,x,c)=>`<svg viewBox="0 0 200 200" style="filter:drop-shadow(0 0 7px ${c||"#0000"})"><defs>${d}</defs>${x}</svg>`;
+const GR=(id,a,b,c)=>`<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".5" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
+const RG=(r,w,g)=>`<circle cx="100" cy="100" r="${r}" fill="none" stroke="url(#${g})" stroke-width="${w}"/>`;
+const HL=r=>`<circle cx="100" cy="100" r="${r}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="110 420" transform="rotate(-150 100 100)"/>`;
+const AN=(n,o=0)=>Array.from({length:n},(_,i)=>o+i*360/n);
+const SP=(an,r,len,w,fill,mode,poly)=>an.map((a,i)=>{const l=len*(mode?(.65+.35*Math.abs(Math.sin(i*2.7+1))):1),x0=100-w/2,x1=100+w/2,y0=100-r,y1=100-r-l;const d=poly?`M${x0} ${y0}L100 ${y1}L${x1} ${y0}Z`:`M${x0} ${y0}Q${x0} ${y0-l*.55} 100 ${y1}Q${x1} ${y0-l*.55} ${x1} ${y0}Z`;return `<g transform="rotate(${a} 100 100)"><path ${mode===1?`class="fl" style="animation-delay:-${((i*.37)%1.3).toFixed(2)}s"`:""} d="${d}" fill="${fill}"/></g>`}).join("");
+const GOLD=GR("a","#fff3b0","#d4a017","#7a5a00");
+const DECO={
+gold:()=>sv(GOLD,RG(75,9,"a")+HL(75),"#ffd24a88"),
+crown:()=>sv(GOLD,RG(75,7,"a")+'<g transform="translate(0 -4)"><path d="M62 44L68 12L85 30L100 4L115 30L132 12L138 44Z" fill="url(#a)" stroke="#7a5a00" stroke-width="1.5" stroke-linejoin="round"/><circle cx="100" cy="15" r="4" fill="#ff3d6e"/><circle cx="68" cy="21" r="3" fill="#35d0ff"/><circle cx="132" cy="21" r="3" fill="#35d0ff"/><path d="M66 40H134" stroke="#fff" stroke-opacity=".5" stroke-width="1.5"/></g>',"#ffd24a88"),
+blue:()=>sv(GR("a","#2a4bff","#a8c4ff","#5a2bd0")+GR("b","#5a3a6a","#c08aa8","#2a1530"),SP(AN(18),70,28,17,"url(#a)",1)+RG(75,8,"b")+HL(75),"#3b5bff"),
+fire:()=>sv(GR("a","#fff1a8","#ff9a1f","#e0360b")+GR("b","#6a3a18","#d08a48","#2a1208"),SP(AN(18),70,28,17,"url(#a)",1)+RG(75,8,"b")+HL(75),"#ff7a1a"),
+ice:()=>sv(GR("a","#ffffff","#9fe3ff","#2a8fd0")+GR("b","#cfefff","#6ab8e8","#2a5f90"),SP(AN(16,5),71,30,13,"url(#a)",2,1)+RG(75,7,"b")+HL(75),"#6fd3ff"),
+thorn:()=>sv(GR("a","#ff6ae6","#6a0a80","#2a0040")+GR("b","#3a2a44","#8a5a9a","#1a0f22"),SP(AN(20),72,17,8,"url(#a)",2,1)+RG(75,7,"b")+HL(75),"#ff2bd6"),
+crystal:()=>sv(GR("a","#ffd0d0","#ff4d5a","#a1081f")+GR("b","#7a3a3a","#e08a8a","#401010"),SP([-70,-47,-24,0,24,47,70],72,30,14,"url(#a)",2,1)+RG(75,7,"b")+HL(75),"#ff4d4d"),
+swirl:()=>sv(GR("a","#bff8ff","#00e5ff","#0077b6"),'<g class="spin"><circle cx="100" cy="100" r="76" fill="none" stroke="url(#a)" stroke-width="7" stroke-linecap="round" stroke-dasharray="150 330"/></g><g class="spin2"><circle cx="100" cy="100" r="82" fill="none" stroke="url(#a)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 425"/></g>'+RG(71,2,"a"),"#00e5ff"),
+crescent:()=>sv(GR("a","#ffffff","#8a8a99","#d9d9e4"),'<circle cx="100" cy="100" r="76" fill="none" stroke="url(#a)" stroke-width="11" stroke-linecap="round" stroke-dasharray="230 250" transform="rotate(95 100 100)"/><circle cx="100" cy="100" r="76" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round" stroke-dasharray="120 360" transform="rotate(100 100 100)"/><circle cx="52" cy="154" r="5" fill="#b24bff"/>',"#ffffff66")
+};
 
 async function load(){
  const [p,v,l,k,c]=await Promise.all([
@@ -133,7 +183,8 @@ async function load(){
 }
 function render(){
  $("nm").textContent=P.name||"MOHAMED AMR";$("bio").textContent=P.bio??"THIS IS MY WORLD.";
- $("av").className="av f-"+(P.frame||"ring");
+ const fr=P.frame||"ring",D=DECO[fr];$("av").className="av f-"+(D?"none":fr);$("deco").innerHTML=D?D():"";
+ const T=P.texts||{};$("hV").textContent=T.v||"الفيديوهات";$("hL").textContent=T.l||"لينكاتي";$("ft").textContent=T.f||"MOHAMED AMR — MY WORLD, MY STORY.";
  $("im").style.backgroundImage=P.avatar_url?`url("${encodeURI(safe(P.avatar_url))}")`:"";
  const b=$("banner"),u=P.banner_url?safe(P.banner_url):"";
  b.innerHTML=!u?"":P.banner_type==="video"?`<video src="${esc(u)}" autoplay muted loop playsinline></video>`:`<img src="${esc(u)}" alt="">`;
@@ -141,17 +192,16 @@ function render(){
  $("vids").innerHTML=V.length?V.map(v=>{
   const lk=K.filter(x=>x.video_id===v.id),mine=lk.some(x=>x.visitor_id===vis),cs=C.filter(x=>x.video_id===v.id);
   return `<div class="card"><video src="${esc(safe(v.url))}" controls preload="metadata" playsinline></video><div class="cb"><h3>${esc(v.title)}</h3>
-  <div class="row"><button data-lk="${v.id}" class="${mine?"liked":""}">${mine?"♥":"♡"} ${lk.length}</button>${owner?`<button class="x" data-dv="${v.id}">حذف الفيديو</button>`:""}</div>
+  <div class="row"><button data-lk="${v.id}" class="lk ${mine?"liked":""}"><span class="h">${mine?"♥":"♡"}</span> ${lk.length}</button>${owner?`<button class="x" data-et="${v.id}">✎ العنوان</button><button class="x" data-dv="${v.id}">حذف الفيديو</button>`:""}</div>
   ${cs.map(c=>`<div class="cm"><b>${esc(c.name)}</b> <small>${new Date(c.created_at).toLocaleDateString("ar-EG")}</small><br>${esc(c.body)}${owner?` <button class="x" data-dc="${c.id}">✕</button>`:""}</div>`).join("")}
-  <div class="row" style="margin-top:10px"><input data-n="${v.id}" placeholder="اسمك" maxlength="40" value="${esc(localStorage.getItem("nm")||"")}" style="max-width:130px"><input data-c="${v.id}" placeholder="اكتب تعليق…" maxlength="500" value="${esc(drafts[v.id]||"")}" style="flex:1;min-width:140px"><button data-sc="${v.id}">إرسال</button></div></div></div>`}).join(""):'<p class="note">مفيش فيديوهات لسه.</p>';
+  <div class="row" style="margin-top:10px"><input data-c="${v.id}" placeholder="اكتب تعليق…" maxlength="500" value="${esc(drafts[v.id]||"")}" style="flex:1;min-width:140px"><button class="lk sm" data-sc="${v.id}">إرسال</button></div></div></div>`}).join(""):'<p class="note">مفيش فيديوهات لسه.</p>';
  $("editBtn").hidden=!owner;$("lock").hidden=owner;
 }
 document.addEventListener("input",e=>{const d=e.target.dataset;if(d&&d.c)drafts[d.c]=e.target.value});
 document.addEventListener("click",async e=>{const t=e.target,d=t.dataset||{};
  if(d.pick)$(d.pick).click();
  if(d.lk){await sb.rpc("toggle_like",{p_video:d.lk,p_visitor:vis});load()}
- if(d.sc){const nm=document.querySelector(`[data-n="${d.sc}"]`).value.trim(),bd=(drafts[d.sc]||"").trim();
-  if(!nm||!bd){alert("اكتب اسمك والتعليق");return}localStorage.setItem("nm",nm);
+ if(d.sc){let nm=localStorage.getItem("nm"),bd=(drafts[d.sc]||"").trim();if(!bd){alert("اكتب التعليق الأول");return}if(!nm){nm=(prompt("اكتب اسمك اللي هيظهر مع تعليقك")||"").trim().slice(0,40);if(!nm)return;localStorage.setItem("nm",nm)}
   const r=await sb.from("comments").insert({video_id:d.sc,name:nm,body:bd});if(r.error){alert("مقدرتش أبعت التعليق");return}drafts[d.sc]="";load()}
  if(d.dc&&confirm("تمسح التعليق؟")){await sb.from("comments").delete().eq("id",d.dc);load()}
  if(d.dv&&confirm("تمسح الفيديو؟")){await sb.from("videos").delete().eq("id",d.dv);load()}
@@ -165,9 +215,9 @@ $("lock").onclick=()=>{const l=$("login");l.hidden=!l.hidden;if(!l.hidden){l.scr
 $("lGo").onclick=async()=>{$("lSt").textContent="…";const r=await sb.auth.signInWithPassword({email:$("lE").value.trim(),password:$("lP").value});
  if(r.error){$("lSt").textContent="فشل الدخول: "+r.error.message;return}$("login").hidden=true;$("lP").value="";owner=true;render();window.scrollTo({top:0,behavior:"smooth"})};
 $("out").onclick=async()=>{await sb.auth.signOut();$("adm").hidden=true};
-$("editBtn").onclick=()=>{const a=$("adm");a.hidden=!a.hidden;$("aN").value=P.name||"MOHAMED AMR";$("aB").value=P.bio??"THIS IS MY WORLD.";$("aF").value=P.frame||"ring"};
+$("editBtn").onclick=()=>{const a=$("adm");a.hidden=!a.hidden;$("aN").value=P.name||"MOHAMED AMR";$("aB").value=P.bio??"THIS IS MY WORLD.";$("aF").value=P.frame||"ring";const T=P.texts||{};$("tV").value=T.v||"";$("tL").value=T.l||"";$("tF").value=T.f||""};
 async function saveP(o){const r=await sb.from("profile").upsert({id:1,...o});say(r.error?"فشل الحفظ: "+r.error.message:"اتحفظ ✓");load()}
-$("save").onclick=()=>saveP({name:$("aN").value.trim(),bio:$("aB").value});
+$("save").onclick=async()=>{await saveP({name:$("aN").value.trim(),bio:$("aB").value});const T={v:$("tV").value.trim(),l:$("tL").value.trim(),f:$("tF").value.trim()};const r=await sb.from("profile").update({texts:T}).eq("id",1);if(r.error)say("الاسم والنبذة اتحفظوا، بس العناوين محتاجة سطر SQL: "+r.error.message);else load()};
 $("aF").onchange=()=>saveP({frame:$("aF").value});
 $("clrBn").onclick=()=>saveP({banner_url:null,banner_type:null});
 
@@ -176,18 +226,34 @@ async function upload(file,folder,ct){const ext=(file.name||"f").split(".").pop(
  const path=`${folder}/${Date.now()}.${ext==="blob"?"jpg":ext}`;
  const r=await sb.storage.from("media").upload(path,file,{contentType:ct||file.type,cacheControl:"31536000"});
  if(r.error)throw r.error;return sb.storage.from("media").getPublicUrl(path).data.publicUrl}
+function cropImg(file,ratio,outW,circle){return new Promise(res=>{
+ const m=$("crop"),cv=$("cv"),im=$("cimg"),z=$("cz"),W=Math.min(innerWidth*.84,360),H=W/ratio;
+ cv.style.width=W+"px";cv.style.height=H+"px";cv.className=circle?"c":"";
+ const url=URL.createObjectURL(file);let x=0,y=0,zm=1,s0=1,nw=0,nh=0,dr=null;
+ const draw=()=>{const s=s0*zm;x=Math.min(0,Math.max(W-nw*s,x));y=Math.min(0,Math.max(H-nh*s,y));im.style.transform="translate("+x+"px,"+y+"px) scale("+s+")"};
+ im.onload=()=>{nw=im.naturalWidth;nh=im.naturalHeight;s0=Math.max(W/nw,H/nh);zm=1;z.value=1;x=(W-nw*s0)/2;y=(H-nh*s0)/2;draw()};
+ im.src=url;m.hidden=false;
+ cv.onpointerdown=e=>{dr={px:e.clientX,py:e.clientY,x,y};cv.setPointerCapture(e.pointerId)};
+ cv.onpointermove=e=>{if(!dr)return;x=dr.x+e.clientX-dr.px;y=dr.y+e.clientY-dr.py;draw()};
+ cv.onpointerup=cv.onpointercancel=()=>{dr=null};
+ z.oninput=()=>{const o=s0*zm,cx=(W/2-x)/o,cy=(H/2-y)/o;zm=+z.value;const s=s0*zm;x=W/2-cx*s;y=H/2-cy*s;draw()};
+ const done=v=>{m.hidden=true;URL.revokeObjectURL(url);res(v)};
+ $("cno").onclick=()=>done(null);
+ $("cok").onclick=()=>{const s=s0*zm,c=document.createElement("canvas");c.width=outW;c.height=Math.round(outW/ratio);c.getContext("2d").drawImage(im,-x/s,-y/s,W/s,H/s,0,0,c.width,c.height);c.toBlob(b=>done(b),"image/jpeg",.9)};
+})}
 const MB=1048576;
 $("fAv").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;say("بيرفع الصورة…");
- try{const b=f.type==="image/gif"?f:await shrink(f,600,.88);const u=await upload(b,"avatar",f.type==="image/gif"?"image/gif":"image/jpeg");await saveP({avatar_url:u})}catch(x){say("فشل: "+(x.message||x))}};
+ try{const b=f.type==="image/gif"?f:await cropImg(f,1,600,true);if(!b){say("اتلغى");return}const u=await upload(b,"avatar",f.type==="image/gif"?"image/gif":"image/jpeg");await saveP({avatar_url:u})}catch(x){say("فشل: "+(x.message||x))}};
 $("fBn").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;const vd=f.type.startsWith("video");
  if(f.size>50*MB){say("الملف أكبر من 50MB");return}say("بيرفع البانر…");
- try{const raw=vd||f.type==="image/gif";const b=raw?f:await shrink(f,1600,.82);const u=await upload(b,"banner",raw?f.type:"image/jpeg");await saveP({banner_url:u,banner_type:vd?"video":"image"})}catch(x){say("فشل: "+(x.message||x))}};
+ try{const raw=vd||f.type==="image/gif";const b=raw?f:await cropImg(f,2.1,1600,false);if(!b){say("اتلغى");return}const u=await upload(b,"banner",raw?f.type:"image/jpeg");await saveP({banner_url:u,banner_type:vd?"video":"image"})}catch(x){say("فشل: "+(x.message||x))}};
 $("fV").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
  if(f.size>50*MB){say("الفيديو "+(f.size/MB).toFixed(0)+"MB، والحد 50MB. قصّه أو صغّر جودته.");return}
  say("بيرفع الفيديو… استنى لحد ما يخلص");
  try{const u=await upload(f,"videos");const r=await sb.from("videos").insert({title:$("vT").value.trim(),url:u});if(r.error)throw r.error;$("vT").value="";say("الفيديو اتضاف ✓");load()}catch(x){say("فشل: "+(x.message||x))}};
 $("lAdd").onclick=async()=>{const t=$("lT").value.trim(),u=$("lU").value.trim();if(!t||!/^https?:\/\//i.test(u)){say("اكتب اسم ولينك يبدأ بـ https://");return}
  const r=await sb.from("links").insert({title:t,url:u,position:L.length});if(r.error){say("فشل: "+r.error.message);return}$("lT").value=$("lU").value="";say("اتضاف ✓");load()};
+document.addEventListener("click",async e=>{const id=e.target.dataset&&e.target.dataset.et;if(!id)return;const v=V.find(x=>x.id===id);const t=prompt("العنوان الجديد",v&&v.title||"");if(t===null)return;const r=await sb.from("videos").update({title:t.trim()}).eq("id",id);toast(r.error?"فشل: "+r.error.message:"اتعدل ✓");load()});
 checkOwner();load();
 </script>
 </body>
