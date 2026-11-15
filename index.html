@@ -142,7 +142,7 @@ body{overflow-x:hidden}
 </head>
 <body>
 <button id="vbtn" hidden aria-label="الزوار"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="7" cy="7" rx="2.8" ry="4.2" transform="rotate(-10 7 7)"/><ellipse cx="7.4" cy="15" rx="2.1" ry="2.4"/><ellipse cx="17" cy="10" rx="2.8" ry="4.2" transform="rotate(10 17 10)"/><ellipse cx="16.6" cy="18" rx="2.1" ry="2.4"/></svg><span id="vbadge" hidden></span></button>
-<div id="vmodal" hidden><div class="vbox"><div class="row" style="justify-content:space-between;margin-bottom:8px"><b>👣 الزوار</b><div class="row"><button id="vclear" class="x">مسح الكل</button><button id="vclose">✕</button></div></div><div id="vlist"></div></div></div>
+<div id="vmodal" hidden><div class="vbox"><div class="row" style="justify-content:space-between;margin-bottom:8px"><b>👣 الزوار</b><div class="row"><button id="vtest" class="x" style="color:#8fe3c0">اختبار</button><button id="vclear" class="x">مسح الكل</button><button id="vclose">✕</button></div></div><div id="vlist"></div></div></div>
 <div class="banner" id="banner"></div>
 <div class="wrap">
  <div class="head">
@@ -467,6 +467,10 @@ function initVisits(){if(initVisits.on)return;initVisits.on=1;loadVisits();
  try{sb.channel("visits-live").on("postgres_changes",{event:"INSERT",schema:"public",table:"visits"},pl=>{toast("👣 زيارة جديدة من "+label(pl.new.source));loadVisits()}).subscribe()}catch(e){}
  setInterval(loadVisits,60000)}
 $("vbtn").onclick=()=>{$("vmodal").hidden=false;localStorage.setItem("vseen",new Date().toISOString());showVisits();badge()};
+$("vtest").onclick=async()=>{
+ const c=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+ const r=await c.from("visits").insert({visitor_id:"test-"+Date.now(),source:"test",referrer:"",device:devOf(),name:null});
+ toast(r.error?"فشل اختبار الزائر: "+r.error.message:"اختبار الزائر نجح ✓ لازم يظهر في القايمة");loadVisits()};
 $("vclose").onclick=()=>{$("vmodal").hidden=true};
 $("vclear").onclick=async()=>{if(!confirm("تمسح كل سجل الزيارات؟"))return;const r=await sb.from("visits").delete().not("id","is",null);toast(r.error?"فشل: "+r.error.message:"اتمسح ✓");loadVisits()};
 checkOwner().then(logVisit);load();
