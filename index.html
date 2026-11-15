@@ -129,9 +129,20 @@ body{overflow-x:hidden}
 .links[hidden]{display:none}
 .lt{display:flex;align-items:center;gap:8px}
 .ico{width:20px;height:20px;border-radius:6px;flex:none}
+#vbtn{position:fixed;left:12px;top:calc(12px + env(safe-area-inset-top));z-index:70;width:42px;height:42px;border-radius:50%;padding:0;display:grid;place-items:center;color:#fff;border:1px solid #ffffff30;background:linear-gradient(180deg,#34343d,#16161b);box-shadow:0 5px 0 #08080a,0 10px 18px #000a,inset 0 1px 0 #ffffff40}
+#vbtn:active{transform:translateY(4px);box-shadow:0 1px 0 #08080a,0 3px 8px #000a}
+#vbtn[hidden],#vbadge[hidden],#vmodal[hidden]{display:none}
+#vbadge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:#ff3b5c;color:#fff;font-size:.7rem;font-weight:700;display:grid;place-items:center;padding:0 4px}
+#vmodal{position:fixed;inset:0;background:#000c;z-index:120;display:flex;align-items:flex-start;justify-content:center;padding:calc(16px + env(safe-area-inset-top)) 16px 16px}
+.vbox{background:#131315;border:1px solid var(--ln);border-radius:18px;width:min(96vw,460px);max-height:84vh;overflow:auto;padding:14px}
+.vrow{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--ln)}
+.vrow .ico{width:26px;height:26px}
+.vrow small{color:var(--mu);display:block}
 </style>
 </head>
 <body>
+<button id="vbtn" hidden aria-label="الزوار"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="7" cy="7" rx="2.8" ry="4.2" transform="rotate(-10 7 7)"/><ellipse cx="7.4" cy="15" rx="2.1" ry="2.4"/><ellipse cx="17" cy="10" rx="2.8" ry="4.2" transform="rotate(10 17 10)"/><ellipse cx="16.6" cy="18" rx="2.1" ry="2.4"/></svg><span id="vbadge" hidden></span></button>
+<div id="vmodal" hidden><div class="vbox"><div class="row" style="justify-content:space-between;margin-bottom:8px"><b>👣 الزوار</b><div class="row"><button id="vclear" class="x">مسح الكل</button><button id="vclose">✕</button></div></div><div id="vlist"></div></div></div>
 <div class="banner" id="banner"></div>
 <div class="wrap">
  <div class="head">
@@ -253,7 +264,7 @@ function render(){
   <div class="row"><button data-plk="${x.id}" class="lk ${mine?"liked":""}"><span class="h">${mine?"♥":"♡"}</span> ${lk.length}</button>${owner?`<button class="x" data-ep="${x.id}">✎ الوصف</button><button class="x" data-dp="${x.id}">حذف المنشور</button>`:""}</div>
   ${cs.map(c=>`<div class="cm"><b>${esc(c.name)}</b> <small>${new Date(c.created_at).toLocaleDateString("ar-EG")}</small><br>${esc(c.body)}${owner?` <button class="x" data-pdc="${c.id}">✕</button>`:""}</div>`).join("")}
   <div class="row" style="margin-top:10px"><input data-c="p${x.id}" placeholder="اكتب تعليق…" maxlength="500" value="${esc(drafts["p"+x.id]||"")}" style="flex:1;min-width:140px"><button class="lk sm" data-psc="${x.id}">إرسال</button></div></div></div>`}).join(""):(PE&&owner?'<p class="note">قسم المنشورات محتاج تشغيل سطر SQL في Supabase أولًا.</p>':'<p class="note">مفيش منشورات لسه.</p>');
- $("editBtn").hidden=!owner;$("lock").hidden=owner;
+ $("editBtn").hidden=!owner;$("lock").hidden=owner;$("vbtn").hidden=!owner;if(owner)setTimeout(initVisits,0);
 }
 document.addEventListener("input",e=>{const d=e.target.dataset;if(d&&d.c)drafts[d.c]=e.target.value});
 document.addEventListener("click",async e=>{const t=e.target.closest("[data-lk],[data-sc],[data-dc],[data-dv],[data-dl],[data-pick]")||e.target,d=t.dataset||{};
@@ -419,7 +430,44 @@ document.addEventListener("scroll",e=>{const c=e.target;if(!c||!c.dataset||!c.da
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;const t=b.dataset.tab;
  $("vids").hidden=t!=="v";$("posts").hidden=t!=="p";$("links").hidden=t!=="l";
  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b))});
-checkOwner();load();
+
+let VS=[],VE=false;
+const SRC={instagram:["instagram.com"],facebook:["facebook.com","fb.com","fb.me"],tiktok:["tiktok.com"],youtube:["youtube.com","youtu.be"],telegram:["t.me","telegram.org","telegram.me"],whatsapp:["whatsapp.com","wa.me"],x:["x.com","twitter.com","t.co"],snapchat:["snapchat.com"],linkedin:["linkedin.com","lnkd.in"],reddit:["reddit.com"],google:["google.com"],github:["github.com"],discord:["discord.com","discord.gg"],pinterest:["pinterest.com"],threads:["threads.net"]};
+const NAME={instagram:"Instagram",facebook:"Facebook",tiktok:"TikTok",youtube:"YouTube",telegram:"Telegram",whatsapp:"WhatsApp",x:"X",snapchat:"Snapchat",linkedin:"LinkedIn",reddit:"Reddit",google:"Google",github:"GitHub",discord:"Discord",pinterest:"Pinterest",threads:"Threads",direct:"زيارة مباشرة (مصدر غير معروف)"};
+const label=k=>NAME[k]||k;
+function devOf(){const u=navigator.userAgent;return /Android/i.test(u)?"Android":/iPhone|iPad|iPod/i.test(u)?"iOS":/Windows/i.test(u)?"Windows":/Mac/i.test(u)?"Mac":/Linux/i.test(u)?"Linux":"جهاز"}
+function srcOf(){
+ const q=new URLSearchParams(location.search),f=(q.get("from")||q.get("utm_source")||q.get("src")||"").toLowerCase().replace(/[^a-z0-9._-]/g,"").slice(0,30);
+ if(f)return{source:f,ref:""};
+ let h="";try{h=new URL(document.referrer).hostname.replace(/^www\./,"")}catch(e){}
+ if(!h||h===location.hostname)return{source:"direct",ref:""};
+ for(const k in SRC)if(SRC[k].some(d=>h===d||h.endsWith("."+d)))return{source:k,ref:h};
+ return{source:h.slice(0,40),ref:h.slice(0,150)}
+}
+async function logVisit(){
+ if(owner||sessionStorage.getItem("lv"))return;sessionStorage.setItem("lv","1");
+ const x=srcOf();
+ try{await sb.from("visits").insert({visitor_id:vis,source:x.source,referrer:x.ref,device:devOf(),name:localStorage.getItem("nm")||null})}catch(e){}
+}
+const vico=k=>{const d=SRC[k]?SRC[k][0]:(k.includes(".")?k:"");return d?'<img class="ico" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(d)+'&sz=64" alt="" onerror="this.remove()">':'<span style="width:26px;text-align:center">🔗</span>'};
+const ago=t=>{const m=Math.round((Date.now()-new Date(t))/60000);return m<1?"دلوقتي":m<60?"من "+m+" دقيقة":m<1440?"من "+Math.round(m/60)+" ساعة":"من "+Math.round(m/1440)+" يوم"};
+function badge(){const seen=new Date(localStorage.getItem("vseen")||0),n=VS.filter(v=>new Date(v.created_at)>seen).length,b=$("vbadge");b.hidden=!n;b.textContent=n>99?"99+":n}
+async function loadVisits(){const r=await sb.from("visits").select().order("created_at",{ascending:false}).limit(300);VE=!!r.error;VS=r.data||[];badge();if(!$("vmodal").hidden)showVisits()}
+function showVisits(){
+ const today=VS.filter(v=>new Date(v.created_at).toDateString()===new Date().toDateString()).length;
+ const cnt={},vc={};VS.forEach(v=>{cnt[v.source]=(cnt[v.source]||0)+1;vc[v.visitor_id]=(vc[v.visitor_id]||0)+1});
+ const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+ $("vlist").innerHTML=VE?'<p class="note">شغّل كود SQL الخاص بالزوار في Supabase أولًا.</p>':
+  '<p class="note" style="margin:0 0 6px">اليوم: <b>'+today+'</b> • الكل: <b>'+VS.length+'</b>'+(top?' • الأكثر: <b>'+esc(label(top[0]))+'</b>':'')+'</p>'+
+  (VS.length?VS.map(v=>'<div class="vrow">'+vico(v.source)+'<div style="flex:1"><b>'+esc(label(v.source))+'</b><small>'+esc(v.device||"")+' • زائر #'+esc((v.visitor_id||"").slice(0,4))+(vc[v.visitor_id]>1?' ('+vc[v.visitor_id]+' زيارات)':'')+(v.name?' • '+esc(v.name):'')+'</small></div><small>'+ago(v.created_at)+'</small></div>').join(""):'<p class="note">مفيش زيارات لسه.</p>')
+}
+function initVisits(){if(initVisits.on)return;initVisits.on=1;loadVisits();
+ try{sb.channel("visits-live").on("postgres_changes",{event:"INSERT",schema:"public",table:"visits"},pl=>{toast("👣 زيارة جديدة من "+label(pl.new.source));loadVisits()}).subscribe()}catch(e){}
+ setInterval(loadVisits,60000)}
+$("vbtn").onclick=()=>{$("vmodal").hidden=false;localStorage.setItem("vseen",new Date().toISOString());showVisits();badge()};
+$("vclose").onclick=()=>{$("vmodal").hidden=true};
+$("vclear").onclick=async()=>{if(!confirm("تمسح كل سجل الزيارات؟"))return;const r=await sb.from("visits").delete().not("id","is",null);toast(r.error?"فشل: "+r.error.message:"اتمسح ✓");loadVisits()};
+checkOwner().then(logVisit);load();
 </script>
 </body>
 </html>
