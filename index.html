@@ -445,9 +445,11 @@ function srcOf(){
  return{source:h.slice(0,40),ref:h.slice(0,150)}
 }
 async function logVisit(){
- if(owner||sessionStorage.getItem("lv"))return;sessionStorage.setItem("lv","1");
+ const dbg=location.search.includes("debug");
+ if(!dbg&&(owner||sessionStorage.getItem("lv")))return;sessionStorage.setItem("lv","1");
  const x=srcOf();
- try{await sb.from("visits").insert({visitor_id:vis,source:x.source,referrer:x.ref,device:devOf(),name:localStorage.getItem("nm")||null})}catch(e){}
+ try{const r=await sb.from("visits").insert({visitor_id:vis,source:x.source,referrer:x.ref,device:devOf(),name:localStorage.getItem("nm")||null});
+  if(dbg)alert(r.error?"فشل تسجيل الزيارة: "+r.error.message:"الزيارة اتسجلت ✓")}catch(e){if(dbg)alert("خطأ: "+e.message)}
 }
 const vico=k=>{const d=SRC[k]?SRC[k][0]:(k.includes(".")?k:"");return d?'<img class="ico" src="https://www.google.com/s2/favicons?domain='+encodeURIComponent(d)+'&sz=64" alt="" onerror="this.remove()">':'<span style="width:26px;text-align:center">🔗</span>'};
 const ago=t=>{const m=Math.round((Date.now()-new Date(t))/60000);return m<1?"دلوقتي":m<60?"من "+m+" دقيقة":m<1440?"من "+Math.round(m/60)+" ساعة":"من "+Math.round(m/1440)+" يوم"};
